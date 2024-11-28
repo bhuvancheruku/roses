@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rose Bouquet Animation</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Rose Bouquet Animation</h1>
+        <canvas id="roseCanvas"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("roseCanvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        function drawRose(t) {
+            const petals = 8;
+            const n = 6;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < n; i++) {
+                const scale = 1 + i * 0.2;
+                ctx.beginPath();
+                for (let theta = 0; theta < Math.PI * 2; theta += 0.01) {
+                    const r = scale * (1 + Math.sin(petals * theta + t));
+                    const x = canvas.width / 2 + r * Math.cos(theta) * 100;
+                    const y = canvas.height / 2 + r * Math.sin(theta) * 100;
+                    ctx.lineTo(x, y);
+                }
+                ctx.fillStyle = `rgba(255, 0, 127, 0.3)`;
+                ctx.strokeStyle = "red";
+                ctx.lineWidth = 2;
+                ctx.closePath();
+                ctx.stroke();
+                ctx.fill();
+            }
+        }
+
+        let time = 0;
+        function animate() {
+            time += 0.05;
+            drawRose(time);
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
