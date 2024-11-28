@@ -3,3 +3,4 @@ pandas
 numpy
 pythreejs
 streamlit-threejs
+ipywidgets
