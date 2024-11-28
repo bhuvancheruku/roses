@@ -2,3 +2,4 @@ streamlit
 pythreejs
 ipywidgets
 numpy
+stl
