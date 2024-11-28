@@ -1,64 +1,64 @@
 import streamlit as st
-from pythreejs import Scene, PerspectiveCamera, WebGLRenderer, AmbientLight, DirectionalLight, Mesh, MeshBasicMaterial, AxesHelper
-from pythreejs import OrbitControls
-import numpy as np
 
 # Streamlit Page Configuration
 st.set_page_config(page_title="3D Model Viewer", layout="wide")
 
 # File Upload Widget for GLB file
-uploaded_file = st.file_uploader("Upload GLB Model", type=["glb"])
+uploaded_file = st.file_uploader("Upload your GLB Model", type=["glb"])
 
-# Streamlit Slider to control the rotation speed of the model
-rotation_speed = st.slider("Model Rotation Speed", min_value=0.01, max_value=0.1, value=0.05)
-
-# Display the 3D Model if a file is uploaded
 if uploaded_file is not None:
-    # Create a 3D scene using pythreejs
-    scene = Scene()
+    # Save the uploaded file temporarily
+    with open("uploaded_model.glb", "wb") as f:
+        f.write(uploaded_file.getbuffer())
 
-    # Camera setup
-    camera = PerspectiveCamera(fov=75, aspect=1, near=0.1, far=1000, position=[0, 1, 5])
+    # HTML/JavaScript for three.js Viewer
+    viewer_html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/three/examples/js/loaders/GLTFLoader.js"></script>
+    </head>
+    <body>
+        <div id="container" style="width: 100%; height: 100%;"></div>
+        <script>
+            // Scene setup
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
 
-    # Lighting
-    ambient_light = AmbientLight(intensity=0.7)
-    scene.add(ambient_light)
-    
-    directional_light = DirectionalLight(intensity=0.5, position=[5, 10, 7.5])
-    scene.add(directional_light)
+            // Lighting
+            const light = new THREE.AmbientLight(0x404040, 2); // Soft white light
+            scene.add(light);
 
-    # WebGL renderer
-    renderer = WebGLRenderer(width=800, height=600)
+            // Load GLB model
+            const loader = new THREE.GLTFLoader();
+            loader.load(
+                '/uploaded_model.glb', 
+                function (gltf) {
+                    scene.add(gltf.scene);
+                },
+                undefined,
+                function (error) {
+                    console.error(error);
+                }
+            );
 
-    # OrbitControls for user interaction
-    controls = OrbitControls(controlling=camera)
+            // Set camera position
+            camera.position.z = 5;
 
-    # Load the GLB model using GLTFLoader
-    loader = GLTFLoader()
+            // Render loop
+            function animate() {
+                requestAnimationFrame(animate);
+                renderer.render(scene, camera);
+            }
+            animate();
+        </script>
+    </body>
+    </html>
+    """
 
-    try:
-        model = loader.load(uploaded_file)
-        scene.add(model)
-    except Exception as e:
-        st.error(f"Error loading GLB model: {e}")
-        model = None
-
-    # Add Axes Helper to the scene for better orientation visualization
-    axes = AxesHelper(size=5)
-    scene.add(axes)
-
-    # Render loop function
-    def render_loop():
-        if model:
-            # Rotation animation
-            model.rotation.y += rotation_speed
-            
-            # Render the scene
-            renderer.render(scene, camera)
-        return renderer
-
-    # Display the 3D scene in Streamlit
-    st.components.v1.html(
-        render_loop(),
-        height=800,
-    )
+    # Display the viewer
+    st.components.v1.html(viewer_html, height=600, width=800)
