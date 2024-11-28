@@ -12,7 +12,7 @@ if uploaded_file is not None:
         f.write(uploaded_file.getbuffer())
 
     # HTML/JavaScript for three.js Viewer
-    viewer_html = f"""
+    viewer_html = """
     <!DOCTYPE html>
     <html>
     <head>
@@ -37,23 +37,23 @@ if uploaded_file is not None:
             const loader = new THREE.GLTFLoader();
             loader.load(
                 "uploaded_model.glb", 
-                function (gltf) {
+                function (gltf) {{
                     scene.add(gltf.scene);
-                },
+                }},
                 undefined,
-                function (error) {
+                function (error) {{
                     console.error(error);
-                }
+                }}
             );
 
             // Set camera position
             camera.position.z = 5;
 
             // Render loop
-            function animate() {
+            function animate() {{
                 requestAnimationFrame(animate);
                 renderer.render(scene, camera);
-            }
+            }}
             animate();
         </script>
     </body>
