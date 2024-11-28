@@ -8,7 +8,7 @@ from IPython.display import display
 st.set_page_config(page_title="3D Model Viewer", layout="wide")
 
 # File Upload Widget for GLB file
-uploaded_file = st.file_uploader("Upload .glb model", type=["glb"])
+uploaded_file = st.file_uploader("iron_spider_suit_mcu.glb model", type=["glb"])
 
 # Streamlit Slider to control the rotation speed of the model
 rotation_speed = st.slider("Model Rotation Speed", min_value=0.01, max_value=0.1, value=0.05)
