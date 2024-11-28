@@ -1,38 +1,26 @@
 import streamlit as st
 import base64
-from pathlib import Path
 import tempfile
 
 # Streamlit Page Configuration
 st.set_page_config(page_title="3D Model Viewer", layout="wide")
 
-# File Upload Widget for GLB file (optional, if you want to upload another model)
-uploaded_file = st.file_uploader("Upload a GLB model (optional)", type=["glb"])
+# Set the path to the GLB model (assuming it's in the root directory of the repo)
+default_model_path = "iron_spider_suit_mcu.glb"
+
+# Read the GLB file as binary
+try:
+    with open(default_model_path, "rb") as file:
+        glb_file = file.read()
+except Exception as e:
+    st.error(f"Error reading the model file: {str(e)}")
+    st.stop()  # Stop the app if the file is missing or cannot be read
+
+# Convert the GLB file to base64
+glb_base64 = base64.b64encode(glb_file).decode("utf-8")
 
 # Streamlit Slider to control the rotation speed of the model
 rotation_speed = st.slider("Model Rotation Speed", min_value=0.01, max_value=0.1, value=0.05)
-
-# Function to convert file to base64 (for displaying in HTML)
-def convert_to_base64(file):
-    # Save the uploaded file temporarily
-    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-        temp_file.write(file.read())
-        temp_file_path = temp_file.name
-    # Read the file back as base64
-    with open(temp_file_path, "rb") as f:
-        return base64.b64encode(f.read()).decode("utf-8")
-
-# Default GLB file if no file is uploaded
-default_model_path = "iron_spider_suit_mcu.glb"
-
-# If a new file is uploaded, use it. Otherwise, use the default model.
-if uploaded_file is not None:
-    glb_file = uploaded_file
-else:
-    glb_file = open(default_model_path, "rb").read()
-
-# Convert the file to base64
-glb_base64 = base64.b64encode(glb_file).decode("utf-8")
 
 # HTML code to embed a 3D model viewer with three.js
 html_code = f"""
@@ -77,8 +65,8 @@ html_code = f"""
         animate();
     </script>
 </body>
-</html>"""
+</html>
+"""
 
-
-Embed the 3D model viewer in the Streamlit app
+# Embed the 3D model viewer in the Streamlit app
 st.components.v1.html(html_code, height=600)
