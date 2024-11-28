@@ -1,7 +1,8 @@
 import streamlit as st
 from pythreejs import Scene, PerspectiveCamera, WebGLRenderer, AmbientLight, DirectionalLight, Mesh, MeshBasicMaterial, AxesHelper
-from pythreejs import GLTFLoader, OrbitControls
+from pythreejs import OrbitControls
 import numpy as np
+from stl import mesh  # Used for loading other 3D model formats if needed
 
 # Streamlit Page Configuration
 st.set_page_config(page_title="3D Model Viewer", layout="wide")
@@ -33,11 +34,11 @@ if uploaded_file is not None:
     # OrbitControls for user interaction
     controls = OrbitControls(controlling=camera)
 
-    # Load the GLB model using GLTFLoader
-    loader = GLTFLoader()
-
-    # Load the model from the uploaded file and add it to the scene
-    model = loader.load(uploaded_file)
+    # Load the GLB model using another method if pythreejs GLTFLoader isn't available
+    model = Mesh(
+        geometry=mesh.Mesh.from_file(uploaded_file),
+        material=MeshBasicMaterial(color='red'),
+    )
     scene.add(model)
 
     # Add Axes Helper to the scene for better orientation visualization
