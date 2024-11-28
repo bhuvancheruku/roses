@@ -2,13 +2,12 @@ import streamlit as st
 from pythreejs import Scene, PerspectiveCamera, WebGLRenderer, AmbientLight, DirectionalLight, Mesh, MeshBasicMaterial, AxesHelper
 from pythreejs import OrbitControls
 import numpy as np
-from stl import mesh  # Used for loading other 3D model formats if needed
 
 # Streamlit Page Configuration
 st.set_page_config(page_title="3D Model Viewer", layout="wide")
 
 # File Upload Widget for GLB file
-uploaded_file = st.file_uploader("iron_spider_suit_mcu.glb", type=["glb"])
+uploaded_file = st.file_uploader("Upload GLB Model", type=["glb"])
 
 # Streamlit Slider to control the rotation speed of the model
 rotation_speed = st.slider("Model Rotation Speed", min_value=0.01, max_value=0.1, value=0.05)
@@ -34,12 +33,15 @@ if uploaded_file is not None:
     # OrbitControls for user interaction
     controls = OrbitControls(controlling=camera)
 
-    # Load the GLB model using another method if pythreejs GLTFLoader isn't available
-    model = Mesh(
-        geometry=mesh.Mesh.from_file(uploaded_file),
-        material=MeshBasicMaterial(color='red'),
-    )
-    scene.add(model)
+    # Load the GLB model using GLTFLoader
+    loader = GLTFLoader()
+
+    try:
+        model = loader.load(uploaded_file)
+        scene.add(model)
+    except Exception as e:
+        st.error(f"Error loading GLB model: {e}")
+        model = None
 
     # Add Axes Helper to the scene for better orientation visualization
     axes = AxesHelper(size=5)
@@ -47,11 +49,12 @@ if uploaded_file is not None:
 
     # Render loop function
     def render_loop():
-        # Rotation animation
-        model.rotation.y += rotation_speed
-        
-        # Render the scene
-        renderer.render(scene, camera)
+        if model:
+            # Rotation animation
+            model.rotation.y += rotation_speed
+            
+            # Render the scene
+            renderer.render(scene, camera)
         return renderer
 
     # Display the 3D scene in Streamlit
